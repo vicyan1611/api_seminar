@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-service
+
+    restart: unless-stopped
+    volumes:
+      - ./api/src:/app/src
+    environment:
+      - NODE_ENV=development
+
+  gateway:
+    image: nginx:stable-alpine
+    container_name: api-gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  nginx_cache:
